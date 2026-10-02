@@ -57,34 +57,35 @@ any of them.
 
 ## 2. Web → Vercel
 
-1. Import the repository in Vercel. **Keep Root Directory as the repo root** —
-   `vercel.json` already sets the monorepo build:
+Vercel detects Next.js from the `package.json` in the **Root Directory**, so it
+must point at the app, not the repo root.
+
+1. Import the repository in Vercel.
+2. **Set Root Directory to `apps/web`.** This is required — leaving it at the
+   repo root produces *"No Next.js version detected"*, because the root
+   `package.json` only holds `turbo` and `typescript`.
+3. Leave everything else alone. `apps/web/vercel.json` supplies the build:
 
    ```json
-   "buildCommand": "pnpm turbo run build --filter=@kapra/web",
-   "outputDirectory": "apps/web/.next"
+   "buildCommand": "cd ../.. && pnpm turbo run build --filter=@kapra/web",
+   "outputDirectory": ".next"
    ```
 
-   Turborepo builds `@kapra/genome-schema` first, which generates the shared
-   TypeScript types from the canonical JSON Schema.
+   Vercel installs from the workspace root (it detects `pnpm-workspace.yaml`),
+   then Turborepo builds `@kapra/genome-schema` first — which generates the
+   shared TypeScript types from the canonical JSON Schema — before `next build`.
 
-2. Set one environment variable:
+4. Set one environment variable:
 
    | Variable | Value |
    |---|---|
    | `ENGINE_INTERNAL_URL` | your engine URL, e.g. `https://kapra-engine.onrender.com` |
 
-3. Deploy, then check `/` shows **engine online** in the footer readout.
+5. Deploy, then check `/` shows **engine online** in the footer readout.
 
-### If the Vercel build fails on the package manager
-
-`package.json` pins `pnpm@12.8.1`. If Vercel's builder lacks it, add:
-
-```
-ENABLE_EXPERIMENTAL_COREPACK = 1
-```
-
-The lockfile is v9.0, so any pnpm 9+ can read it.
+> Package manager: Vercel runs `pnpm v12.8.1` from the `packageManager` field
+> without extra configuration — confirmed in a real build log. No corepack flag
+> is needed.
 
 ---
 
