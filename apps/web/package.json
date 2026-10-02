@@ -14,9 +14,9 @@
   "dependencies": {
     "@kapra/genome-schema": "workspace:*",
     "@kapra/ui-tokens": "workspace:*",
-    "next": "15.1.6",
-    "react": "19.0.0",
-    "react-dom": "19.0.0"
+    "next": "15.5.27",
+    "react": "19.2.1",
+    "react-dom": "19.2.1"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",
