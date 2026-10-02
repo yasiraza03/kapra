@@ -7,14 +7,17 @@ shots it needs, runs the satisfiable ones, and assembles a single Genome.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Protocol, runtime_checkable
+from typing import Any, Protocol, TypeVar, runtime_checkable
 
 import numpy as np
 
 from kapra_engine.domain import Gene
 from kapra_engine.domain.tiers import ShotType, Tier
 from kapra_engine.imaging import Rgb, center_patch, downscale, to_gray01
+
+_T = TypeVar("_T")
 
 
 @dataclass
@@ -32,6 +35,7 @@ class GarmentContext:
 
     _patch: Rgb | None = None
     _gray: np.ndarray | None = None
+    _cache: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
     def from_image(
@@ -51,6 +55,17 @@ class GarmentContext:
         if self._gray is None:
             self._gray = to_gray01(self.patch)
         return self._gray
+
+    def memo(self, key: str, factory: Callable[[], _T]) -> _T:
+        """Cache an expensive derived value across extractors.
+
+        Several genes read the same FFT; computing it once keeps the pipeline
+        honest about cost without coupling the extractors to each other.
+        """
+        if key not in self._cache:
+            self._cache[key] = factory()
+        value: _T = self._cache[key]
+        return value
 
     def warn(self, message: str) -> None:
         self.warnings.append(message)

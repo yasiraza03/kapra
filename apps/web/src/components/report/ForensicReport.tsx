@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Genome, Tier } from "@kapra/genome-schema";
 import { GeneCard } from "./GeneCard";
+import { AtAGlance } from "./AtAGlance";
 
 const TIER_ORDER: Record<Tier, number> = { MEASURED: 0, ESTIMATED: 1, INFERRED: 2 };
 
@@ -32,6 +33,9 @@ export function ForensicReport({ genome }: { genome: Genome }) {
           </dl>
         </div>
       </section>
+
+      {/* plain-English answer first — technical detail follows */}
+      <AtAGlance genome={genome} />
 
       {/* specimen + legend */}
       <section className="band-dark">
@@ -91,7 +95,13 @@ export function ForensicReport({ genome }: { genome: Genome }) {
 
       {/* genome strand */}
       <section>
-        <div className="mx-auto max-w-editorial space-y-6 px-5 py-16 sm:px-8 sm:py-20">
+        <div className="mx-auto max-w-editorial px-5 pt-16 sm:px-8 sm:pt-20">
+          <p className="kicker text-ink-faint">The measurements</p>
+          <h2 className="mt-4 max-w-3xl font-display text-d3 text-ink">
+            Every reading, and the figure behind it.
+          </h2>
+        </div>
+        <div className="mx-auto max-w-editorial space-y-6 px-5 py-10 sm:px-8 sm:py-12">
           {genes.map((gene, i) => (
             <GeneCard key={gene.geneId} gene={gene} index={i} />
           ))}

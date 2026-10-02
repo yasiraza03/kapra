@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { WeavePlate } from "@/components/editorial/WeavePlate";
+import { Specimen } from "@/components/editorial/Specimen";
 import { GENES } from "@/content/site";
 
 export const metadata = {
@@ -68,8 +68,9 @@ export default function GenesPage() {
                     id={g.id}
                     className="grid scroll-mt-32 gap-6 border-t border-line py-10 md:grid-cols-[200px_1fr] md:gap-10"
                   >
-                    <WeavePlate
-                      variant={g.plate}
+                    <Specimen
+                      swatch={g.swatch}
+                      plate={g.plate}
                       className="aspect-[4/5] w-full max-w-[200px]"
                     />
                     <div>

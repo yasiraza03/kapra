@@ -268,4 +268,36 @@ Different energy from your portfolio on purpose. The concept: **textiles were hi
 
 ---
 
-*Status: PLAN. Awaiting green light to start Phase 0.*
+---
+
+## 12. Where we actually are
+
+The plan above is the original thesis and still holds. Two deliberate course
+corrections happened during the build, both documented:
+
+1. **Vertical slice before depth.** Rather than completing Phase 1 (capture +
+   segmentation) first, we built one complete path end to end — upload →
+   real CV → stored genome → report → archive — using only dependency-light
+   classical CV. This made the product demonstrable and *clone-and-runnable*
+   far sooner, and every later gene now lands on a working product.
+2. **Light-first identity.** The cyanotype concept survived, but as *bands*
+   rather than the ground: bone paper and near-black ink carry the site, with
+   `.band-dark` / `.band-ink` inverting the semantic tokens. The original
+   indigo-first scheme fought its own accent.
+
+**Shipped:** monorepo + versioned genome schema (TS/Python conformance-tested),
+the extractor plugin system, six genes across two honesty tiers, SQLite
+persistence behind a repository seam, an editorial multi-page site
+(`/`, `/method`, `/genes`, `/archive`, `/about`, `/analyze`, `/genome/[id]`),
+a plain-English summary layer, six generated demo specimens, one-command dev and
+bootstrap scripts, CI across both toolchains, and deployment configuration for
+Vercel + Hugging Face Spaces.
+
+**Still open:** segmentation and the silhouette gene; the trained `ESTIMATED`
+classifiers (fibre) and their public-dataset benchmarks; the `INFERRED` reasoning
+layer; a real-photograph benchmark; scale-reference detection (which would turn
+weight from an estimate into a measurement); and the V2 comparison + pgvector
+retrieval work.
+
+*Status: vertical slice shipped and verified end to end. See
+[`BENCHMARKS.md`](BENCHMARKS.md) for validated numbers and known weaknesses.*

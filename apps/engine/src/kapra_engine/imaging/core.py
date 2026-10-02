@@ -107,5 +107,20 @@ def encode_png_datauri(rgb: Rgb) -> str:
     return f"data:image/png;base64,{b64}"
 
 
+def encode_jpeg_datauri(rgb: Rgb, quality: int = 80) -> str:
+    """Encode to a base64 JPEG data URI.
+
+    Photographic payloads (the specimen preview) use JPEG: a PNG preview inflates
+    a genome into megabytes, which then has to travel to the browser twice — once
+    as HTML and once as the server-component payload.
+    """
+    bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+    ok, buf = cv2.imencode(".jpg", bgr, [int(cv2.IMWRITE_JPEG_QUALITY), quality])
+    if not ok:
+        raise ValueError("jpeg encode failed")
+    b64 = base64.b64encode(buf.tobytes()).decode("ascii")
+    return f"data:image/jpeg;base64,{b64}"
+
+
 def rgb_to_hex(rgb: tuple[int, int, int]) -> str:
     return "#{:02x}{:02x}{:02x}".format(*rgb)

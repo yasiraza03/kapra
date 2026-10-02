@@ -15,11 +15,14 @@ from kapra_engine.core.logging import timed
 from kapra_engine.domain import Gene, Genome, Shot, Source
 from kapra_engine.domain.tiers import ShotType
 from kapra_engine.extractors import GarmentContext, registry
-from kapra_engine.imaging import decode_rgb, downscale, encode_png_datauri
+from kapra_engine.imaging import decode_rgb, downscale, encode_jpeg_datauri
 
 log = get_logger("kapra.orchestrator")
 
-_PREVIEW_MAX_SIDE = 768
+# Keep the embedded preview small: a genome travels to the browser inside both
+# the HTML and the server-component payload, so every byte here lands twice.
+_PREVIEW_MAX_SIDE = 560
+_PREVIEW_QUALITY = 78
 
 
 def _new_id() -> str:
@@ -42,7 +45,7 @@ def analyze_image(data: bytes, *, shot_type: ShotType = ShotType.MACRO) -> Genom
             log.warning("extractor %s failed: %s", extractor.id, exc)
             ctx.warn(f"gene '{extractor.id}' could not be computed: {exc}")
 
-    preview_uri = encode_png_datauri(downscale(rgb, _PREVIEW_MAX_SIDE))
+    preview_uri = encode_jpeg_datauri(downscale(rgb, _PREVIEW_MAX_SIDE), _PREVIEW_QUALITY)
 
     return Genome(
         schema_version="1.0.0",

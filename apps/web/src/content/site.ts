@@ -8,6 +8,8 @@ export interface GeneEntry {
   reads: string;
   detail: string;
   plate: PlateVariant;
+  /** A shipped specimen that shows this gene off; see content/swatches.ts. */
+  swatch?: string;
   status: "live" | "planned";
 }
 
@@ -18,10 +20,23 @@ export const GENES: GeneEntry[] = [
     name: "Weave Structure",
     tier: "MEASURED",
     method: "2D Fourier transform · GLCM · Gabor bank",
-    reads: "Plain / twill / satin, thread periodicity, dominant orientation",
+    reads: "Thread periodicity and the orientation of the grid",
     detail:
-      "A woven cloth is a periodic signal. Its 2D power spectrum carries the repeat distance and the angle of the wale directly — a twill's diagonal shows up as diagonal energy in frequency space. A grey-level co-occurrence matrix and a bank of Gabor filters corroborate the scale and directionality.",
+      "A woven cloth is a periodic signal. Its 2D power spectrum carries the thread repeat as the distance of the dominant peak from the centre, and the direction of the grid as that peak's angle. Because the peak is found at any angle rather than assumed to sit on the axes, cloth photographed askew reads just as accurately. On our reference swatches the repeat lands within about 1% of the rendered truth.",
     plate: "twill",
+    swatch: "denim-indigo",
+    status: "live",
+  },
+  {
+    id: "weave_family",
+    name: "Weave Family",
+    tier: "ESTIMATED",
+    method: "Off-axis lattice ratio",
+    reads: "Plain / twill / satin interlacing",
+    detail:
+      "The repeat unit of an interlacing leaves structure off the thread axes at a fixed ratio of the thread period: √2 for a plain weave's 2-thread repeat, √5 for 5-harness satin, 2√2 for a 2/2 twill. kapra measures the spectral power sitting at each of those ratios and names the best match. It identifies all six reference swatches correctly — but naming an interlacing is a judgement, not a measurement, so it sits in the ESTIMATED tier with its margin reported.",
+    plate: "satin",
+    swatch: "satin-charcoal",
     status: "live",
   },
   {
@@ -33,6 +48,7 @@ export const GENES: GeneEntry[] = [
     detail:
       "Colour is clustered in CIELAB, which is perceptually uniform, so distances mean what the eye means. Dye evenness is the mean CIEDE2000 distance of each pixel to its cluster centre: tight clusters indicate consistent dyeing, a long tail indicates mottling or fade.",
     plate: "plain",
+    swatch: "linen-natural",
     status: "live",
   },
   {
@@ -44,6 +60,7 @@ export const GENES: GeneEntry[] = [
     detail:
       "Local Binary Patterns encode the micro-structure around every pixel into a histogram, and the variance of the Laplacian measures how much genuine micro-detail is present. Together they separate a dense fine poplin from an open, coarse weave.",
     plate: "rib",
+    swatch: "flannel-grey",
     status: "live",
   },
   {
@@ -55,6 +72,7 @@ export const GENES: GeneEntry[] = [
     detail:
       "A matte fabric scatters light evenly; a mercerised or coated finish throws a bright specular tail. We read that tail from the value-channel distribution, isolating bright low-saturation pixels. It is lighting-dependent, so it reports a deliberately modest confidence.",
     plate: "satin",
+    swatch: "poplin-white",
     status: "live",
   },
   {
@@ -83,12 +101,13 @@ export const GENES: GeneEntry[] = [
     id: "weight",
     name: "Weight Class",
     tier: "ESTIMATED",
-    method: "Weave tightness · opacity · fibre prior",
-    reads: "Lightweight / midweight / heavyweight, with an interval",
+    method: "Thread density from the measured repeat",
+    reads: "Lightweight / midweight / heavyweight, with a g/m² interval",
     detail:
-      "You cannot read exact GSM off a JPEG, so we refuse to print one. Weight is reported as a bucket with a stated confidence interval, derived from weave tightness, opacity where a backlit shot exists, and the fibre prior.",
+      "You cannot read exact GSM off a JPEG — mass is not in the pixels, and neither is absolute scale. So this gene states its assumption out loud (a macro frames roughly 40mm of cloth), derives thread density from the measured repeat, and reports a weight class with a wide interval at deliberately low confidence. Put a coin or ruler in frame and it becomes a real measurement; until then it is a hint.",
     plate: "rib",
-    status: "planned",
+    swatch: "canvas-olive",
+    status: "live",
   },
   {
     id: "construction",
@@ -151,7 +170,7 @@ export const PRINCIPLES = [
 ] as const;
 
 export const STATS = [
-  { value: "4", label: "genes live" },
+  { value: "6", label: "genes live" },
   { value: "3", label: "honesty tiers" },
   { value: "0", label: "model weights" },
   { value: "~1.4s", label: "to sequence" },

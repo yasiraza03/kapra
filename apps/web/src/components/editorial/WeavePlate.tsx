@@ -11,9 +11,11 @@ export function WeavePlate({
   className = "",
   label,
 }: {
-  variant?: PlateVariant;
-  className?: string;
-  label?: string;
+  // `| undefined` is explicit because the repo runs exactOptionalPropertyTypes,
+  // and these are forwarded from optional content fields.
+  variant?: PlateVariant | undefined;
+  className?: string | undefined;
+  label?: string | undefined;
 }) {
   const uid = `plate-${variant}`;
   return (

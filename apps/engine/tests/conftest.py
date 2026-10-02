@@ -63,6 +63,35 @@ def weave_png() -> bytes:
     return _synthetic_weave()
 
 
+def _synthetic_plain_weave(period: int = 10, size: int = 640) -> bytes:
+    """A rendered plain (over-under) weave with rounded yarn shading.
+
+    Its off-axis lattice structure sits at sqrt(2) x the thread period, which is
+    what the weave_family extractor keys on.
+    """
+    n = size // period + 1
+    i = np.arange(n)[:, None]
+    j = np.arange(n)[None, :]
+    mask = np.kron(((i + j) % 2) == 0, np.ones((period, period), dtype=bool))[:size, :size]
+
+    t = (np.arange(size) % period) / period
+    profile = np.sin(np.pi * t) ** 0.55
+    warp = np.broadcast_to(profile[None, :], (size, size))
+    weft = np.broadcast_to(profile[:, None], (size, size))
+    base = np.where(mask, warp, weft) * np.where(mask, 1.0, 0.88)
+
+    gray = np.clip(base * 190 + 35, 0, 255).astype(np.uint8)
+    rgb = cv2.cvtColor(gray, cv2.COLOR_GRAY2RGB)
+    ok, buf = cv2.imencode(".png", cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR))
+    assert ok
+    return bytes(buf.tobytes())
+
+
+@pytest.fixture
+def plain_weave_png() -> bytes:
+    return _synthetic_plain_weave()
+
+
 @pytest.fixture
 def sample_genome() -> Genome:
     return Genome(

@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Genome } from "@kapra/genome-schema";
+import { DEMO_SWATCHES, swatchSrc } from "@/content/swatches";
 
 type Phase = "idle" | "ready" | "analyzing" | "error";
 
@@ -49,6 +50,23 @@ export function Uploader() {
       setPhase("error");
     }
   }, [router]);
+
+  /** Load one of the shipped demo specimens so nobody needs a photo to start. */
+  const loadSample = useCallback(
+    async (slug: string, name: string) => {
+      try {
+        const res = await fetch(swatchSrc(slug));
+        if (!res.ok) throw new Error(`could not load sample (${res.status})`);
+        const blob = await res.blob();
+        choose(new File([blob], `${slug}.jpg`, { type: "image/jpeg" }));
+        setFileName(`${name} (sample)`);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "could not load sample");
+        setPhase("error");
+      }
+    },
+    [choose],
+  );
 
   const onDrop = useCallback(
     (e: React.DragEvent) => {
@@ -129,7 +147,35 @@ export function Uploader() {
         </p>
       )}
 
-      <div className="mt-5 flex items-center gap-4">
+      {/* shipped demo specimens — no photo required to try the instrument */}
+      <div className="mt-6">
+        <p className="kicker text-ink-faint">Or sequence a sample</p>
+        <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-6">
+          {DEMO_SWATCHES.map((s) => (
+            <button
+              key={s.slug}
+              type="button"
+              disabled={busy}
+              onClick={() => void loadSample(s.slug, s.name)}
+              title={`${s.name} — ${s.note}`}
+              className="group relative aspect-square overflow-hidden border border-line transition-colors duration-[320ms] ease-liquid hover:border-signal disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={swatchSrc(s.slug)}
+                alt={`${s.name} — ${s.note}`}
+                loading="lazy"
+                className="h-full w-full object-cover"
+              />
+              <span className="readout absolute inset-x-0 bottom-0 bg-surface/85 py-1 text-center text-[0.5625rem] uppercase tracking-[0.14em] text-ink-dim">
+                {s.name}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-6 flex items-center gap-4">
         <button
           type="button"
           disabled={phase !== "ready" && phase !== "error"}

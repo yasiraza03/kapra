@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { probeEngine } from "@/lib/api/engine";
 import { WeavePlate } from "@/components/editorial/WeavePlate";
+import { Specimen } from "@/components/editorial/Specimen";
 import { GENES, PRINCIPLES, STATS, TIERS } from "@/content/site";
 
 export default async function Home() {
@@ -31,7 +32,7 @@ export default async function Home() {
               KAPRA
             </h1>
             <div className="pointer-events-none absolute left-1/2 top-1/2 h-[118%] w-[30%] max-w-[260px] -translate-x-1/2 -translate-y-1/2 sm:h-[135%]">
-              <WeavePlate variant="spectrum" className="h-full w-full" />
+              <Specimen swatch="denim-indigo" priority className="h-full w-full" />
             </div>
           </div>
 
@@ -66,7 +67,11 @@ export default async function Home() {
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             {live.map((g) => (
               <article key={g.id} className="group">
-                <WeavePlate variant={g.plate} className="aspect-[4/5] w-full" />
+                <Specimen
+                  swatch={g.swatch}
+                  plate={g.plate}
+                  className="aspect-[4/5] w-full"
+                />
                 <h3 className="mt-5 font-display text-2xl text-ink">{g.name}</h3>
                 <p className="readout mt-2 text-xs text-ink-faint">{g.method}</p>
                 <p className="mt-3 font-sans text-sm leading-relaxed text-ink-dim">
@@ -107,9 +112,9 @@ export default async function Home() {
             </div>
           </div>
           <div className="relative">
-            <WeavePlate variant="twill" className="aspect-[4/3] w-full" label="twill · 45°" />
+            <Specimen swatch="linen-natural" label="linen · plain" className="aspect-[4/3] w-full" />
             <div className="absolute -bottom-6 -left-6 hidden w-40 sm:block">
-              <WeavePlate variant="plain" className="aspect-square w-full" label="plain" />
+              <WeavePlate variant="spectrum" className="aspect-square w-full" label="its spectrum" />
             </div>
           </div>
         </div>

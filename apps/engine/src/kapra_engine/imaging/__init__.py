@@ -7,6 +7,7 @@ from .core import (
     center_patch,
     decode_rgb,
     downscale,
+    encode_jpeg_datauri,
     encode_png_datauri,
     to_gray01,
 )
@@ -18,6 +19,7 @@ __all__ = [
     "center_patch",
     "decode_rgb",
     "downscale",
+    "encode_jpeg_datauri",
     "encode_png_datauri",
     "to_gray01",
 ]
