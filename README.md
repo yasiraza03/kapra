@@ -122,7 +122,8 @@ pytest, vitest, and GitHub Actions across both toolchains.
 
 ## Deploying
 
-Web on Vercel, engine on Hugging Face Spaces — both free tiers.
+Web on Vercel; the Python engine on any container host (Render has a real free
+tier and a `render.yaml` blueprint is included).
 See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
 ## Status & limits

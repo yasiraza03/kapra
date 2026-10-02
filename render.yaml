@@ -1,0 +1,21 @@
+# Render blueprint for the kapra engine.
+#
+# Render reads this from the repo root. The web app is NOT defined here — it
+# goes to Vercel (see docs/DEPLOYMENT.md); this file only hosts the Python
+# CV service that Vercel cannot run.
+services:
+  - type: web
+    name: kapra-engine
+    runtime: docker
+    plan: free
+    rootDir: apps/engine
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: KAPRA_LOG_LEVEL
+        value: INFO
+      # Free instances have an ephemeral disk, so stored genomes are lost on
+      # restart. Swap this for a hosted Postgres URL to persist the archive.
+      - key: KAPRA_DATABASE_URL
+        value: sqlite:////home/kapra/kapra.sqlite3

@@ -1,47 +1,56 @@
 # Deployment
 
-Two deployables, both on free tiers: the **web app on Vercel** and the
-**engine on Hugging Face Spaces** (Docker). Total cost: $0/month.
+Two deployables: the **web app on Vercel** and the **Python engine** somewhere
+that can run a container. Vercel cannot run the engine — it needs OpenCV, SciPy
+and scikit-image, which do not fit the serverless model.
 
 ```
-  browser ──▶ Vercel (Next.js)  ──▶  HF Spaces (FastAPI + OpenCV)
+  browser ──▶ Vercel (Next.js)  ──▶  container host (FastAPI + OpenCV)
                        ▲                      │
-                 ENGINE_INTERNAL_URL          └── SQLite (ephemeral)
+                 ENGINE_INTERNAL_URL          └── SQLite (ephemeral on free tiers)
 ```
 
 The browser never calls the engine directly: the Next.js server fetches it
-server-side and proxies `/api/engine/*` (see `apps/web/next.config.mjs`). That
-means **no CORS configuration is needed**, and the engine URL stays private.
+server-side and proxies `/api/engine/*` (see `apps/web/next.config.mjs`). So
+**no CORS configuration is needed**, and the engine URL stays private.
 
 ---
 
-## 1. Engine → Hugging Face Spaces
+## Picking a host for the engine
 
-1. Create a new Space: **SDK = Docker**, hardware = CPU basic (free).
-2. Push the contents of `apps/engine/` to the Space repo (the `Dockerfile` is
-   already there and listens on port 7860, which is what Spaces expects).
+Free tiers moved in 2026. Verified state at time of writing:
 
-   ```bash
-   git clone https://huggingface.co/spaces/<you>/kapra-engine
-   cp -r apps/engine/* kapra-engine/
-   cd kapra-engine && git add -A && git commit -m "kapra engine" && git push
-   ```
+| Host | Free? | Notes |
+|---|---|---|
+| **Render** | ✅ Yes | 512 MB RAM, no credit card. Sleeps after ~15 min idle (30–50 s cold start). `render.yaml` is in this repo. **Recommended.** |
+| **Koyeb** | ✅ Yes | 1 vCPU / 512 MB, plus a **free Postgres** — which also solves the ephemeral-storage problem. |
+| **Railway** | ⚠️ Credits | $5 once + $1/month. Fine for a demo, runs out under real use. |
+| **Hugging Face Spaces** | ❌ No longer | Docker and Gradio SDKs are now **paid**; only Static is free. The Dockerfile still works there on a paid plan. |
+| **Fly.io** | ❌ No | No free tier for new accounts. |
 
-3. Wait for the build, then verify:
-   `https://<you>-kapra-engine.hf.space/health` → `{"status":"ok",...}`
+The `Dockerfile` binds `$PORT` with a 7860 fallback, so it runs unmodified on
+any of them.
 
-**Known limitation:** the Spaces filesystem is ephemeral, so stored genomes are
-lost when the Space restarts or sleeps. The archive will appear empty after a
-cold start. Fixes, in order of effort: attach persistent storage (paid), or
-point `KAPRA_DATABASE_URL` at a free hosted Postgres (Neon) — the repository
-layer is already abstracted for exactly this (see ADR-0001).
+---
+
+## 1. Engine → Render (recommended)
+
+1. render.com → **New → Blueprint**, connect the GitHub repo. Render reads
+   `render.yaml` and configures the service automatically.
+
+   *Or without the blueprint:* **New → Web Service** → connect the repo →
+   Runtime **Docker**, Root Directory `apps/engine`, Plan **Free**.
+
+2. Wait for the build (the CV stack takes a few minutes the first time).
+3. Verify: `https://kapra-engine.onrender.com/health` → `{"status":"ok",...}`
 
 ### Engine environment variables
 
 | Variable | Default | Notes |
 |---|---|---|
-| `KAPRA_DATABASE_URL` | `sqlite:////home/kapra/kapra.sqlite3` | set in the Dockerfile |
+| `KAPRA_DATABASE_URL` | SQLite in the container | point at Postgres to persist the archive |
 | `KAPRA_LOG_LEVEL` | `INFO` | |
+| `PORT` | injected by the host | the Dockerfile honours it |
 | `KAPRA_CORS_ORIGINS` | `["http://localhost:3000"]` | only needed if a browser calls the engine directly |
 
 ---
@@ -63,29 +72,50 @@ layer is already abstracted for exactly this (see ADR-0001).
 
    | Variable | Value |
    |---|---|
-   | `ENGINE_INTERNAL_URL` | `https://<you>-kapra-engine.hf.space` |
+   | `ENGINE_INTERNAL_URL` | your engine URL, e.g. `https://kapra-engine.onrender.com` |
 
 3. Deploy, then check `/` shows **engine online** in the footer readout.
 
----
+### If the Vercel build fails on the package manager
 
-## 3. Pre-flight checklist
+`package.json` pins `pnpm@12.8.1`. If Vercel's builder lacks it, add:
 
-Run before pushing a deploy:
-
-```bash
-pnpm run typecheck && pnpm run lint && pnpm run test && pnpm run build
-cd apps/engine && ./.venv/Scripts/python.exe -m pytest -q   # or .venv/bin/python
+```
+ENABLE_EXPERIMENTAL_COREPACK = 1
 ```
 
-- [ ] `pnpm run build` passes with **no dev server running** (Windows file locks
-      prevent `next build` and `next dev` sharing `.next`)
-- [ ] `ENGINE_INTERNAL_URL` set in Vercel
-- [ ] Space `/health` returns 200
-- [ ] Demo swatches committed under `apps/web/public/swatches/`
+The lockfile is v9.0, so any pnpm 9+ can read it.
+
+---
+
+## 3. Deploying the site before the engine
+
+Perfectly fine. Every page renders and the whole site works; uploads simply
+report **engine offline** until `ENGINE_INTERNAL_URL` points at a live engine.
+`probeEngine()` times out after 2.5 s, so a missing engine never hangs a page.
 
 ## 4. Cold starts
 
-A free Space sleeps after inactivity and takes ~30s to wake. The web app
-degrades honestly rather than hanging: `probeEngine()` times out after 2.5s and
-the UI reports the engine as offline instead of blocking the page.
+A sleeping free instance takes ~30–50 s to wake. The first analysis after idle
+will be slow; the UI degrades honestly rather than hanging.
+
+## 5. Persistence
+
+Free tiers have ephemeral disks, so the archive empties on restart. To fix,
+create a free Postgres (Koyeb, Neon or Render) and set `KAPRA_DATABASE_URL` to
+its connection string. Only the repository layer touches the database — see
+`docs/decisions/0001-sqlite-dev-persistence.md`.
+
+---
+
+## Pre-flight checklist
+
+```bash
+pnpm run typecheck && pnpm run lint && pnpm run test
+pnpm turbo run build --filter=@kapra/web   # with NO dev server running
+cd apps/engine && .venv/Scripts/python -m pytest -q
+```
+
+- [ ] `ENGINE_INTERNAL_URL` set in Vercel
+- [ ] engine `/health` returns 200
+- [ ] demo swatches committed under `apps/web/public/swatches/`
