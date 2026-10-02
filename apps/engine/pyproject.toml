@@ -1,0 +1,74 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "kapra-engine"
+version = "0.1.0"
+description = "kapra engine — the CV/ML service that reconstructs a garment's genome from photographs."
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [{ name = "yr10raza", email = "yr10raza@gmail.com" }]
+license = { text = "UNLICENSED" }
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "python-multipart>=0.0.12",
+]
+
+[project.optional-dependencies]
+# Phase 1-2: classical CV / DSP. Installed when we reach the measured core.
+cv = [
+    "numpy>=2.0",
+    "scipy>=1.14",
+    "opencv-python-headless>=4.10",
+    "scikit-image>=0.24",
+    "Pillow>=11.0",
+]
+# Phase 1: background removal / segmentation.
+segmentation = [
+    "rembg>=2.0.59",
+    "onnxruntime>=1.19",
+]
+# Phase 2-3: embeddings + ONNX classifiers.
+ml = [
+    "onnxruntime>=1.19",
+    "huggingface-hub>=0.26",
+]
+# Persistence (SQLite now; the repo layer stays swappable to Postgres/pgvector).
+db = [
+    "sqlalchemy>=2.0",
+]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "httpx>=0.27",
+    "ruff>=0.7",
+    "mypy>=1.13",
+    "jsonschema>=4.23",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kapra_engine"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "src"
+packages = ["kapra_engine"]
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+asyncio_mode = "auto"

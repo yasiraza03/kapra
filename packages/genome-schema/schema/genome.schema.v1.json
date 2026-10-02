@@ -1,0 +1,192 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kapra.dev/schema/genome.schema.v1.json",
+  "title": "Genome",
+  "description": "The complete forensic reconstruction of a single garment from a set of photographs. Versioned: every genome records the schemaVersion it was produced under so old genomes keep parsing as the schema evolves.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "id", "createdAt", "source", "genes"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "description": "Semantic version of this schema. Clients branch on the major.",
+      "const": "1.0.0"
+    },
+    "id": {
+      "type": "string",
+      "description": "Opaque unique id for this genome.",
+      "minLength": 1
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp the genome was assembled."
+    },
+    "source": {
+      "$ref": "#/definitions/Source"
+    },
+    "genes": {
+      "type": "array",
+      "description": "One GeneResult per extractor that ran. Order is not significant.",
+      "items": { "$ref": "#/definitions/GeneResult" }
+    },
+    "timings": {
+      "type": "object",
+      "description": "Per-extractor wall-clock timings in milliseconds, keyed by gene id. An instrument touch — surfaced in the report.",
+      "additionalProperties": { "type": "number", "minimum": 0 }
+    },
+    "warnings": {
+      "type": "array",
+      "description": "Non-fatal issues raised during assembly (e.g. a shot was missing so a gene degraded).",
+      "items": { "type": "string" }
+    }
+  },
+  "definitions": {
+    "Tier": {
+      "type": "string",
+      "description": "The honesty tier of a claim — the soul of kapra. MEASURED: computed directly from pixels, deterministic, reproducible. ESTIMATED: a model prediction with a confidence/interval. INFERRED: a hypothesis reasoned from the measured+estimated layers, explicitly labelled as inference.",
+      "enum": ["MEASURED", "ESTIMATED", "INFERRED"]
+    },
+    "ShotType": {
+      "type": "string",
+      "description": "The role a photograph plays in analysis.",
+      "enum": ["full-front", "full-back", "macro", "detail", "label", "backlit"]
+    },
+    "Shot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "type": { "$ref": "#/definitions/ShotType" },
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 },
+        "uri": {
+          "type": "string",
+          "description": "Where the (normalized) image can be fetched for the report. May be a data URI or a storage path."
+        }
+      }
+    },
+    "Source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["shots"],
+      "properties": {
+        "shots": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Shot" },
+          "minItems": 1
+        },
+        "capture": {
+          "type": "object",
+          "description": "What normalization was applied during capture. Affects how much to trust MEASURED color/scale.",
+          "additionalProperties": false,
+          "properties": {
+            "whiteBalanced": { "type": "boolean" },
+            "colorCardDetected": { "type": "boolean" },
+            "scaleFiducialDetected": { "type": "boolean" },
+            "perspectiveCorrected": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "Interval": {
+      "type": "object",
+      "description": "A confidence interval for an ESTIMATED value.",
+      "additionalProperties": false,
+      "required": ["low", "high"],
+      "properties": {
+        "low": { "type": "number" },
+        "high": { "type": "number" },
+        "unit": { "type": "string" },
+        "level": {
+          "type": "number",
+          "description": "Confidence level the interval covers, e.g. 0.9 for a 90% interval.",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "Evidence": {
+      "type": "object",
+      "description": "A pointer to the measurement that justifies a gene's value. No claim ships without at least one.",
+      "additionalProperties": false,
+      "required": ["kind", "label"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "description": "The sort of evidence being cited.",
+          "enum": ["measurement", "model-output", "reference", "derivation"]
+        },
+        "label": { "type": "string", "minLength": 1 },
+        "detail": { "type": "string" },
+        "value": {
+          "description": "The raw numeric/structured measurement, when applicable."
+        },
+        "vizRef": {
+          "type": "string",
+          "description": "Id of a VizSpec on this or another gene that visualizes this evidence."
+        }
+      }
+    },
+    "VizSpec": {
+      "type": "object",
+      "description": "A declarative description of how the UI should render the proof for a gene. The web app owns the rendering; the engine owns the data.",
+      "additionalProperties": false,
+      "required": ["id", "kind"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "kind": {
+          "type": "string",
+          "enum": ["fft", "gabor", "palette", "contour", "heatmap", "histogram", "overlay", "bars"]
+        },
+        "title": { "type": "string" },
+        "caption": { "type": "string" },
+        "data": {
+          "description": "Viz-kind-specific payload. Shape is validated by the renderer, not this schema, so new viz kinds don't require a schema bump."
+        }
+      }
+    },
+    "GeneResult": {
+      "type": "object",
+      "description": "The output of one Extractor: a single gene of the garment's genome.",
+      "additionalProperties": false,
+      "required": ["geneId", "tier", "label", "value", "confidence", "evidence"],
+      "properties": {
+        "geneId": {
+          "type": "string",
+          "description": "Stable identifier, e.g. 'weave', 'color', 'silhouette'.",
+          "minLength": 1
+        },
+        "tier": { "$ref": "#/definitions/Tier" },
+        "label": {
+          "type": "string",
+          "description": "Human-facing name of the gene, e.g. 'Weave Structure'."
+        },
+        "value": {
+          "description": "The structured reading. Shape depends on the gene."
+        },
+        "summary": {
+          "type": "string",
+          "description": "One-line human-readable statement of the finding."
+        },
+        "confidence": {
+          "type": "number",
+          "description": "0..1 confidence in the value.",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "interval": { "$ref": "#/definitions/Interval" },
+        "evidence": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Evidence" },
+          "minItems": 1
+        },
+        "viz": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/VizSpec" }
+        }
+      }
+    }
+  }
+}

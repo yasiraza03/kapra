@@ -1,0 +1,64 @@
+@import "@kapra/ui-tokens/css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  html,
+  body {
+    padding: 0;
+    margin: 0;
+  }
+  body {
+    background-color: var(--surface);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: var(--signal);
+    color: var(--bone-100);
+  }
+}
+
+@layer components {
+  /* The blueprint measurement grid — the canvas motif. Decorative, but it is
+     literally a measurement grid, so it earns its place. */
+  .blueprint-grid {
+    background-image:
+      linear-gradient(var(--surface-line) var(--rule), transparent var(--rule)),
+      linear-gradient(90deg, var(--surface-line) var(--rule), transparent var(--rule));
+    background-size: calc(var(--grid) * 4) calc(var(--grid) * 4);
+  }
+
+  /* Monospace data readout — all numbers and tiers speak in mono. */
+  .readout {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+  }
+
+  .tier-chip {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border: var(--rule) solid currentColor;
+    border-radius: var(--radius);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

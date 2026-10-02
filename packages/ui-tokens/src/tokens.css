@@ -1,0 +1,77 @@
+/**
+ * kapra design tokens as CSS custom properties.
+ * Mirror of src/index.ts — keep in sync. Dark-first (the blueprint is the hero).
+ */
+:root {
+  /* blueprint grounds */
+  --bp-900: #06131f;
+  --bp-800: #0a1e2e;
+  --bp-700: #0e2a3f;
+  --bp-600: #143a54;
+  --bp-500: #1d4e6e;
+  --bp-400: #2e6a8e;
+  --bp-300: #4e8aae;
+
+  /* bone papers */
+  --bone-100: #f4efe3;
+  --bone-200: #ece5d4;
+  --bone-300: #ded5bf;
+  --bone-400: #c7bca1;
+
+  /* thread-red accent */
+  --thread: #ce402e;
+  --thread-bright: #e24a33;
+  --thread-deep: #a4301f;
+
+  /* data spectrum — measurement visuals only */
+  --data-0: #0a1e2e;
+  --data-1: #14506e;
+  --data-2: #2e8fa8;
+  --data-3: #7bc4b6;
+  --data-4: #d9d28a;
+  --data-5: #e8a24a;
+  --data-6: #ce402e;
+
+  /* tier language */
+  --tier-measured: var(--data-2);
+  --tier-estimated: var(--data-4);
+  --tier-inferred: var(--thread);
+
+  /* semantic surfaces (blueprint hero) */
+  --surface: var(--bp-900);
+  --surface-raised: var(--bp-800);
+  --surface-line: color-mix(in srgb, var(--bone-100) 14%, transparent);
+  --ink: var(--bone-100);
+  --ink-dim: color-mix(in srgb, var(--bone-100) 62%, transparent);
+  --ink-faint: color-mix(in srgb, var(--bone-100) 34%, transparent);
+  --signal: var(--thread);
+
+  /* type */
+  --font-serif: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", ui-monospace, monospace;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* motion */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --t-fast: 160ms;
+  --t-base: 320ms;
+  --t-slow: 640ms;
+
+  /* structure */
+  --grid: 8px;
+  --radius: 2px;
+  --rule: 1px;
+
+  color-scheme: dark;
+}
+
+/* A paper/light inversion for printable report surfaces, if ever needed. */
+[data-surface="paper"] {
+  --surface: var(--bone-100);
+  --surface-raised: var(--bone-200);
+  --surface-line: color-mix(in srgb, var(--bp-900) 14%, transparent);
+  --ink: var(--bp-900);
+  --ink-dim: color-mix(in srgb, var(--bp-900) 66%, transparent);
+  --ink-faint: color-mix(in srgb, var(--bp-900) 36%, transparent);
+  color-scheme: light;
+}

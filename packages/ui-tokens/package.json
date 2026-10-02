@@ -1,0 +1,21 @@
+{
+  "name": "@kapra/ui-tokens",
+  "version": "0.1.0",
+  "description": "kapra design tokens — cyanotype x bone x thread-red. The single source for palette, type scale, motion.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./css": "./src/tokens.css"
+  },
+  "files": ["src"],
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "echo \"(ui-tokens) lint: no-op\"",
+    "test": "echo \"(ui-tokens) no tests\""
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}

@@ -1,0 +1,9 @@
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.onnx binary
+*.pt binary
+*.safetensors binary
+pnpm-lock.yaml -diff linguist-generated

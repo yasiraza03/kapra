@@ -1,0 +1,60 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# builds
+dist/
+.next/
+out/
+build/
+*.tsbuildinfo
+
+# turbo
+.turbo/
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# ml artifacts (never commit raw weights — see docs/DATA.md)
+apps/engine/models/*.onnx
+apps/engine/models/*.pt
+apps/engine/models/*.bin
+apps/engine/models/*.safetensors
+data/
+datasets/
+
+# local db (sqlite dev)
+*.sqlite
+*.sqlite3
+*.db
+
+# os / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# coverage / test output
+coverage/
+.coverage
+htmlcov/
+playwright-report/
+test-results/
+
+# genome-schema generated types (build artifact; regenerated from JSON Schema)
+packages/genome-schema/src/generated.ts
