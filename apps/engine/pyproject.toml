@@ -61,12 +61,29 @@ target-version = "py312"
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF"]
 
+[tool.ruff.lint.per-file-ignores]
+# conftest sets the test DATABASE_URL before importing the app — imports follow.
+"tests/conftest.py" = ["E402"]
+
 [tool.mypy]
 python_version = "3.12"
 strict = true
 mypy_path = "src"
 packages = ["kapra_engine"]
 plugins = ["pydantic.mypy"]
+
+# Third-party CV/ML libraries ship no type stubs.
+[[tool.mypy.overrides]]
+module = ["cv2.*", "skimage.*", "scipy.*"]
+ignore_missing_imports = true
+
+# The numeric extractor/imaging modules call loosely-typed scientific functions
+# (scikit-image). We keep full strictness everywhere else; here we relax only the
+# two flags that fight that boundary, while still type-checking our own signatures.
+[[tool.mypy.overrides]]
+module = ["kapra_engine.extractors.*", "kapra_engine.imaging.*"]
+disallow_untyped_calls = false
+warn_return_any = false
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

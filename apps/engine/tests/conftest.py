@@ -3,10 +3,20 @@
 from __future__ import annotations
 
 import json
+import os
+import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+# Point persistence at a throwaway SQLite file BEFORE anything reads settings,
+# so tests never touch a real database or litter the repo.
+_TMP_DB = Path(tempfile.gettempdir()) / "kapra_test.sqlite3"
+_TMP_DB.unlink(missing_ok=True)
+os.environ.setdefault("KAPRA_DATABASE_URL", f"sqlite:///{_TMP_DB.as_posix()}")
+
+import cv2
+import numpy as np
 import pytest
 
 from kapra_engine.domain import (
@@ -34,6 +44,23 @@ SCHEMA_PATH = REPO_ROOT / "packages" / "genome-schema" / "schema" / "genome.sche
 @pytest.fixture(scope="session")
 def genome_json_schema() -> dict[str, Any]:
     return json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+
+
+def _synthetic_weave(period: float = 8.0, size: int = 600) -> bytes:
+    """A diagonal grating (period/√2 perpendicular period) — a known twill-like weave."""
+    yy, xx = np.mgrid[0:size, 0:size]
+    grid = np.sin(2 * np.pi * (xx + yy) / period) * 0.5 + 0.5
+    gray = (grid * 180 + 40).astype(np.uint8)
+    rgb = cv2.cvtColor(gray, cv2.COLOR_GRAY2RGB)
+    rgb[:, :, 2] = np.clip(rgb[:, :, 2].astype(int) + 40, 0, 255)  # slight blue tint
+    ok, buf = cv2.imencode(".png", cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR))
+    assert ok
+    return bytes(buf.tobytes())
+
+
+@pytest.fixture
+def weave_png() -> bytes:
+    return _synthetic_weave()
 
 
 @pytest.fixture

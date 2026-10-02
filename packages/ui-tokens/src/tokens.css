@@ -1,55 +1,63 @@
 /**
- * kapra design tokens as CSS custom properties.
- * Mirror of src/index.ts — keep in sync. Dark-first (the blueprint is the hero).
+ * kapra design tokens — editorial bone paper, near-black ink, cyanotype bands,
+ * one oxblood accent.
+ *
+ * Light-first on purpose: the archive is printed on paper. Dark cyanotype
+ * sections are *bands* (.band-dark) that invert the same semantic tokens, so
+ * every component works on either ground without knowing which it's on.
  */
 :root {
-  /* blueprint grounds */
-  --bp-900: #06131f;
-  --bp-800: #0a1e2e;
-  --bp-700: #0e2a3f;
-  --bp-600: #143a54;
-  --bp-500: #1d4e6e;
-  --bp-400: #2e6a8e;
-  --bp-300: #4e8aae;
+  /* paper — warm bone */
+  --paper-100: #faf8f2;
+  --paper-200: #f3f0e7;
+  --paper-300: #eae5d9;
+  --paper-400: #ded7c6;
 
-  /* bone papers */
-  --bone-100: #f4efe3;
-  --bone-200: #ece5d4;
-  --bone-300: #ded5bf;
-  --bone-400: #c7bca1;
+  /* ink — near black, warm */
+  --ink-900: #141310;
+  --ink-700: #332f29;
+  --ink-500: #4a463e;
+  --ink-300: #8b8578;
 
-  /* thread-red accent */
-  --thread: #ce402e;
-  --thread-bright: #e24a33;
-  --thread-deep: #a4301f;
+  /* cyanotype — the band color */
+  --indigo-900: #081a27;
+  --indigo-800: #0e2738;
+  --indigo-600: #16384d;
+  --indigo-400: #2d5f7c;
 
-  /* data spectrum — measurement visuals only */
-  --data-0: #0a1e2e;
-  --data-1: #14506e;
-  --data-2: #2e8fa8;
-  --data-3: #7bc4b6;
-  --data-4: #d9d28a;
-  --data-5: #e8a24a;
-  --data-6: #ce402e;
+  /* the single accent: oxblood thread */
+  --accent: #b23e2b;
+  --accent-bright: #cc4a33;
+  --accent-deep: #8a2e1f;
 
-  /* tier language */
-  --tier-measured: var(--data-2);
-  --tier-estimated: var(--data-4);
-  --tier-inferred: var(--thread);
+  /* data spectrum — measurement visuals only, tuned for paper */
+  --data-1: #0e2738;
+  --data-2: #1c6b74;
+  --data-3: #4e9a8e;
+  --data-4: #c2a24a;
+  --data-5: #d2802f;
+  --data-6: #b23e2b;
 
-  /* semantic surfaces (blueprint hero) */
-  --surface: var(--bp-900);
-  --surface-raised: var(--bp-800);
-  --surface-line: color-mix(in srgb, var(--bone-100) 14%, transparent);
-  --ink: var(--bone-100);
-  --ink-dim: color-mix(in srgb, var(--bone-100) 62%, transparent);
-  --ink-faint: color-mix(in srgb, var(--bone-100) 34%, transparent);
-  --signal: var(--thread);
+  /* tier language (readable on paper) */
+  --tier-measured: #1c6b74;
+  --tier-estimated: #9a6b1f;
+  --tier-inferred: #b23e2b;
+
+  /* semantic — paper ground */
+  --surface: var(--paper-200);
+  --surface-raised: var(--paper-100);
+  --surface-sunken: var(--paper-300);
+  --surface-line: rgba(20, 19, 16, 0.16);
+  --surface-line-strong: rgba(20, 19, 16, 0.34);
+  --ink: var(--ink-900);
+  --ink-dim: var(--ink-500);
+  --ink-faint: var(--ink-300);
+  --signal: var(--accent);
 
   /* type */
-  --font-serif: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --font-display: "Bodoni Moda", Didot, "Times New Roman", Georgia, serif;
+  --font-sans: "Archivo", Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "IBM Plex Mono", "SFMono-Regular", ui-monospace, monospace;
-  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 
   /* motion */
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -59,19 +67,46 @@
 
   /* structure */
   --grid: 8px;
-  --radius: 2px;
+  --radius: 0px;
   --rule: 1px;
 
+  color-scheme: light;
+}
+
+/**
+ * A dark cyanotype band. Inverts the semantic tokens only — children stay
+ * unaware of which ground they sit on.
+ */
+.band-dark {
+  --surface: var(--indigo-800);
+  --surface-raised: var(--indigo-600);
+  --surface-sunken: var(--indigo-900);
+  --surface-line: rgba(243, 240, 231, 0.2);
+  --surface-line-strong: rgba(243, 240, 231, 0.4);
+  --ink: var(--paper-200);
+  --ink-dim: rgba(243, 240, 231, 0.74);
+  --ink-faint: rgba(243, 240, 231, 0.46);
+  --tier-measured: #5fb3b8;
+  --tier-estimated: #d8b45e;
+  --tier-inferred: #e0705a;
+  --signal: #e0705a;
+
+  background-color: var(--surface);
+  color: var(--ink);
   color-scheme: dark;
 }
 
-/* A paper/light inversion for printable report surfaces, if ever needed. */
-[data-surface="paper"] {
-  --surface: var(--bone-100);
-  --surface-raised: var(--bone-200);
-  --surface-line: color-mix(in srgb, var(--bp-900) 14%, transparent);
-  --ink: var(--bp-900);
-  --ink-dim: color-mix(in srgb, var(--bp-900) 66%, transparent);
-  --ink-faint: color-mix(in srgb, var(--bp-900) 36%, transparent);
-  color-scheme: light;
+/** An ink band — maximum editorial contrast, like a magazine spread. */
+.band-ink {
+  --surface: var(--ink-900);
+  --surface-raised: var(--ink-700);
+  --surface-line: rgba(243, 240, 231, 0.2);
+  --ink: var(--paper-100);
+  --ink-dim: rgba(250, 248, 242, 0.72);
+  --ink-faint: rgba(250, 248, 242, 0.44);
+  --signal: #e0705a;
+
+  background-color: var(--surface);
+  color: var(--ink);
+  color-scheme: dark;
 }

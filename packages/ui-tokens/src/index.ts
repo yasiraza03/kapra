@@ -1,72 +1,64 @@
 /**
- * kapra design tokens — cyanotype x bone x thread-red.
+ * kapra design tokens — editorial bone paper, near-black ink, cyanotype bands,
+ * one oxblood accent.
  *
- * Concept: textiles were historically archived as cyanotype blueprints. kapra
- * is that archive reborn as a forensic instrument. The default surface is the
- * blueprint (deep indigo ground, bone ink), with a single thread-red accent
- * reserved for the live/active signal and a constrained data spectrum reserved
- * ONLY for measurement visuals (FFT / Gabor / heatmaps).
+ * Concept: textiles were historically archived as cyanotype blueprints. kapra is
+ * that archive, printed. Paper is the ground; cyanotype is the band; the accent
+ * is a single thread of oxblood.
  *
  * Rule that kills slop: nothing decorative that isn't also data.
  */
 
 export const palette = {
-  /** Cyanotype blueprint grounds — darkest to lightest. */
-  blueprint: {
-    900: "#06131F", // deepest ground
-    800: "#0A1E2E",
-    700: "#0E2A3F",
-    600: "#143A54",
-    500: "#1D4E6E", // classic cyanotype prussian blue
-    400: "#2E6A8E",
-    300: "#4E8AAE",
+  /** Warm bone papers — the ground. */
+  paper: {
+    100: "#FAF8F2",
+    200: "#F3F0E7",
+    300: "#EAE5D9",
+    400: "#DED7C6",
   },
-  /** Bone / ecru papers — the "print" side. */
-  bone: {
-    100: "#F4EFE3",
-    200: "#ECE5D4",
-    300: "#DED5BF",
-    400: "#C7BCA1",
+  /** Near-black warm inks. */
+  ink: {
+    900: "#141310",
+    700: "#332F29",
+    500: "#4A463E",
+    300: "#8B8578",
   },
-  /** The single accent: thread-red. Live signal, active state, the one spark. */
-  thread: {
-    DEFAULT: "#CE402E",
-    bright: "#E24A33",
-    deep: "#A4301F",
+  /** Cyanotype — used for dark bands, not the default ground. */
+  indigo: {
+    900: "#081A27",
+    800: "#0E2738",
+    600: "#16384D",
+    400: "#2D5F7C",
+  },
+  /** The single accent: oxblood thread. */
+  accent: {
+    DEFAULT: "#B23E2B",
+    bright: "#CC4A33",
+    deep: "#8A2E1F",
   },
   /** Data spectrum — reserved for measurement visuals only, never chrome. */
   data: {
-    c0: "#0A1E2E",
-    c1: "#14506E",
-    c2: "#2E8FA8",
-    c3: "#7BC4B6",
-    c4: "#D9D28A",
-    c5: "#E8A24A",
-    c6: "#CE402E",
+    c1: "#0E2738",
+    c2: "#1C6B74",
+    c3: "#4E9A8E",
+    c4: "#C2A24A",
+    c5: "#D2802F",
+    c6: "#B23E2B",
   },
 } as const;
 
-/** Honesty tiers get their own stable visual language across the whole app. */
+/** Honesty tiers get a stable visual language across the whole app. */
 export const tierColor = {
   MEASURED: palette.data.c2, // teal — hard, computed, trustworthy
-  ESTIMATED: palette.data.c4, // sand — probabilistic
-  INFERRED: palette.thread.DEFAULT, // thread-red — explicitly a hypothesis
+  ESTIMATED: "#9A6B1F", // ochre — probabilistic
+  INFERRED: palette.accent.DEFAULT, // oxblood — explicitly a hypothesis
 } as const;
 
 export const typography = {
-  serif: `"Newsreader", "Iowan Old Style", Georgia, serif`, // editorial voice
-  mono: `"IBM Plex Mono", "SFMono-Regular", ui-monospace, monospace`, // data readouts + tiers
-  sans: `"Inter", system-ui, -apple-system, "Segoe UI", sans-serif`, // body
-  scale: {
-    xs: "0.75rem",
-    sm: "0.875rem",
-    base: "1rem",
-    lg: "1.25rem",
-    xl: "1.75rem",
-    "2xl": "2.5rem",
-    "3xl": "3.75rem",
-    "4xl": "5.5rem",
-  },
+  display: `"Bodoni Moda", Didot, "Times New Roman", Georgia, serif`,
+  sans: `"Archivo", Inter, system-ui, -apple-system, "Segoe UI", sans-serif`,
+  mono: `"IBM Plex Mono", "SFMono-Regular", ui-monospace, monospace`,
 } as const;
 
 export const motion = {
@@ -78,9 +70,9 @@ export const motion = {
 } as const;
 
 export const space = {
-  grid: "8px", // blueprint measurement grid base unit
-  radius: "2px", // technical, crisp — almost no rounding
-  rule: "1px", // callout line weight
+  grid: "8px",
+  radius: "0px", // editorial: no rounding
+  rule: "1px",
 } as const;
 
 export type Tier = keyof typeof tierColor;

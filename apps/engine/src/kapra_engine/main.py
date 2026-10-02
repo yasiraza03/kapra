@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from kapra_engine import __version__
-from kapra_engine.api import health_router
+from kapra_engine.api import analyze_router, health_router
 from kapra_engine.core import configure_logging, get_settings
 
 settings = get_settings()
@@ -31,6 +31,7 @@ app.add_middleware(
 )
 
 app.include_router(health_router)
+app.include_router(analyze_router)
 
 
 @app.get("/", include_in_schema=False)

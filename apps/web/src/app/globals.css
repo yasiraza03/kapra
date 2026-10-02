@@ -22,35 +22,148 @@
   }
   ::selection {
     background: var(--signal);
-    color: var(--bone-100);
+    color: var(--paper-100);
+  }
+  a {
+    color: inherit;
+    text-decoration: none;
   }
 }
 
 @layer components {
-  /* The blueprint measurement grid — the canvas motif. Decorative, but it is
-     literally a measurement grid, so it earns its place. */
-  .blueprint-grid {
-    background-image:
-      linear-gradient(var(--surface-line) var(--rule), transparent var(--rule)),
-      linear-gradient(90deg, var(--surface-line) var(--rule), transparent var(--rule));
-    background-size: calc(var(--grid) * 4) calc(var(--grid) * 4);
-  }
-
-  /* Monospace data readout — all numbers and tiers speak in mono. */
+  /* Mono label — all data readouts, tiers, and editorial kickers speak in mono. */
   .readout {
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.02em;
   }
 
-  .tier-chip {
+  .kicker {
     font-family: var(--font-mono);
     font-size: 0.6875rem;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.26em;
     text-transform: uppercase;
-    padding: 2px 8px;
+  }
+
+  .tier-chip {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 3px 8px;
     border: var(--rule) solid currentColor;
-    border-radius: var(--radius);
+  }
+
+  /* The blueprint measurement grid — decorative, but it is literally a
+     measurement grid, so it earns its place. */
+  .blueprint-grid {
+    background-image:
+      linear-gradient(var(--surface-line) var(--rule), transparent var(--rule)),
+      linear-gradient(90deg, var(--surface-line) var(--rule), transparent var(--rule));
+    background-size: calc(var(--grid) * 5) calc(var(--grid) * 5);
+  }
+
+  /* Editorial hairline used between sections and list rows. */
+  .rule-t {
+    border-top: var(--rule) solid var(--surface-line);
+  }
+  .rule-b {
+    border-bottom: var(--rule) solid var(--surface-line);
+  }
+
+  /* Underline that draws itself on hover — restrained, editorial. */
+  .link-draw {
+    position: relative;
+    display: inline-block;
+  }
+  .link-draw::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    height: 1px;
+    width: 100%;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--t-base) var(--ease);
+  }
+  .link-draw:hover::after {
+    transform: scaleX(1);
+  }
+
+  /* Solid editorial button. */
+  .btn-solid {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 1rem 2rem;
+    background: var(--ink);
+    color: var(--surface);
+    transition:
+      background var(--t-base) var(--ease),
+      color var(--t-base) var(--ease);
+  }
+  .btn-solid:hover {
+    background: var(--signal);
+    color: var(--paper-100);
+  }
+
+  /* Outlined editorial button. */
+  .btn-line {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 1rem 2rem;
+    border: var(--rule) solid var(--surface-line-strong);
+    color: var(--ink);
+    transition:
+      border-color var(--t-base) var(--ease),
+      background var(--t-base) var(--ease),
+      color var(--t-base) var(--ease);
+  }
+  .btn-line:hover {
+    border-color: var(--signal);
+    color: var(--signal);
+  }
+
+  /* Marquee strip, like a newspaper ticker. */
+  .marquee {
+    display: flex;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .marquee > div {
+    display: flex;
+    flex-shrink: 0;
+    gap: 3rem;
+    padding-right: 3rem;
+    animation: marquee 42s linear infinite;
+  }
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-100%);
+    }
+  }
+
+  /* Reveal-on-load for editorial headlines. */
+  .rise {
+    animation: rise var(--t-slow) var(--ease) both;
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
 }
 
@@ -59,6 +172,7 @@
   *::before,
   *::after {
     animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
 }
